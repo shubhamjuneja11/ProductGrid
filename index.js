@@ -46,7 +46,7 @@ ProductGrid.prototype.refreshProducts = function() {
     return _this.shouldIncludeProduct(product);
   });
   this.createPageNavigators();
-//  this.setProductsData(this.filteredData);
+  //  this.setProductsData(this.filteredData);
 };
 
 ProductGrid.prototype.shouldIncludeProduct = function(product) {
@@ -148,7 +148,6 @@ ProductGrid.prototype.createFilterOptionsView = function(filterName, filterOptio
 };
 
 ProductGrid.prototype.setProductsData = function(productsData) {
-  console.log(productsData);
   var _this = this,
     fragment = document.createDocumentFragment();
   $.each(productsData, function(index, value) {
@@ -175,17 +174,19 @@ ProductGrid.prototype.loadProductToView = function(product) {
 ProductGrid.prototype.addPagination = function() {
   this.createPagesDropDown();
   this.bindPagesEventListener();
-    this.maxProductsPerPage = this.paginationAttributes.pagesValues[0];
-
+  this.maxProductsPerPage = this.paginationAttributes.pagesValues[0];
   this.createPageNavigators();
 };
 
 ProductGrid.prototype.createPagesDropDown = function() {
   var optionsList = this.paginationAttributes.pagesValues,
-  _this = this;
+    _this = this;
   this.paginationDropDownList = $('<select>');
   $.each(optionsList, function(index, pageValue) {
-    _this.paginationDropDownList.append($('<option>',{value: pageValue, text: pageValue}));
+    _this.paginationDropDownList.append($('<option>', {
+      value: pageValue,
+      text: pageValue
+    }));
   });
   this.$filtersContainer.append(this.paginationDropDownList);
 };
@@ -196,19 +197,25 @@ ProductGrid.prototype.bindPagesEventListener = function() {
     _this.maxProductsPerPage = $(this).val();
     _this.createPageNavigators();
   });
-   this.$pagesContainer.on('click','a', function() {
+  this.$pagesContainer.on('click', 'a', function() {
     _this.currentPage = $(this).attr('value');
     _this.filterPageData();
     _this.highlightSelectedPage(_this.currentPage);
-   });
+  });
 };
 
 ProductGrid.prototype.createPageNavigators = function() {
   this.currentPage = 1;
   this.pagesCount = Math.ceil(Object.keys(this.filteredData).length / this.maxProductsPerPage),
-  pagesNavigator = $('<div>');
-  for(var pageCount=1;pageCount<=this.pagesCount;pageCount++) {
-    pagesNavigator.append($('<a>',{'data-property':'page-switcher','page-count': pageCount,text:pageCount,value: pageCount,href:'#'}));
+    pagesNavigator = $('<div>');
+  for (var pageCount = 1; pageCount <= this.pagesCount; pageCount++) {
+    pagesNavigator.append($('<a>', {
+      'data-property': 'page-switcher',
+      'page-count': pageCount,
+      text: pageCount,
+      value: pageCount,
+      href: '#'
+    }));
   }
   this.$pagesContainer.html(pagesNavigator);
   this.filterPageData();
@@ -216,14 +223,14 @@ ProductGrid.prototype.createPageNavigators = function() {
 };
 
 ProductGrid.prototype.filterPageData = function() {
-  var firstProductIndex = (this.currentPage-1)*this.maxProductsPerPage,
+  var firstProductIndex = (this.currentPage - 1) * this.maxProductsPerPage,
     lastProductindex = firstProductIndex + this.maxProductsPerPage;
   this.setProductsData(this.filteredData.slice(firstProductIndex, lastProductindex));
 };
 
 ProductGrid.prototype.highlightSelectedPage = function(pageNumber) {
   this.$pagesContainer.find('.current-page').removeClass('current-page');
-  this.$pagesContainer.find('[page-count="'+pageNumber+'"]').addClass('current-page');
+  this.$pagesContainer.find('[page-count="' + pageNumber + '"]').addClass('current-page');
 };
 
 $(function() {
@@ -250,7 +257,7 @@ $(function() {
       class: 'product-item'
     },
     paginationAttributes: {
-      pagesValues: [3,6,9]
+      pagesValues: [3, 6, 9]
     }
   }
   var productGrid = new ProductGrid(options);
