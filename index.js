@@ -10,11 +10,13 @@ function ProductGrid(options) {
   var _this = this;
   $.each(this.filters, function(index, filter) {
     _this.filterData[filter] = {};
-    _this.selectedFilters[filter] = [];
+    _this.selectedFilters[filter] = {};
   });
 }
 
-ProductGrid.prototype.init = function() {
+ProductGrid.prototype.init = function(response) {
+  this.filteredData = this.productData = response;
+  this.setData();
   this.bindEventListeners();
 };
 
@@ -29,13 +31,12 @@ ProductGrid.prototype.bindEventListeners = function() {
 
 ProductGrid.prototype.updateSelectedFilters = function(filterName, filterValue, filterType, filterChecked) {
   if (filterChecked) {
-    this.selectedFilters[filterName].push(filterValue);
+    this.selectedFilters[filterName][filterValue] = true;
   } else {
-    this.selectedFilters[filterName].splice($.inArray(filterValue, this.selectedFilters[filterName]), 1);
+    delete this.selectedFilters[filterName][filterValue];
   }
   this.refreshProducts();
 };
-
 
 ProductGrid.prototype.refreshProducts = function() {
   var _this = this;
@@ -50,17 +51,15 @@ ProductGrid.prototype.shouldIncludeProduct = function(product) {
     _this = this;
   $.each(this.selectedFilters, function(filterName, filterValue) {
     var productValue = product[filterName];
-    if (filterValue.length != 0)
-      includeProduct &= ($.inArray(productValue, filterValue) != -1);
+    if (Object.keys(filterValue).length != 0) {
+      includeProduct = _this.selectedFilters[filterName][productValue] == true;
+      return includeProduct;
+    }
   });
   return includeProduct;
 };
 
 /**************Data fetching from server**********************/
-ProductGrid.prototype.getResponseFromUrl = function(response) {
-  this.filteredData = this.productData = response;
-  this.setData();
-};
 
 ProductGrid.prototype.setData = function() {
   this.setProductsData();
@@ -193,6 +192,7 @@ $(function() {
   }
   var productGrid = new ProductGrid(options);
   var ajaxRequestHandler = new AjaxRequestHandler('product.json');
-  ajaxRequestHandler.fetchData($.proxy(productGrid.getResponseFromUrl, productGrid));
-  productGrid.init();
+  ajaxRequestHandler.fetchData((function(response) {
+    productGrid.init(response)
+  }));
 });
