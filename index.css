@@ -24,7 +24,7 @@ body {
 
 #main,
 #data-content {
-  height: 92%;
+  height: 88%;
 }
 
 #sidebar {
@@ -112,3 +112,15 @@ body {
   text-align: center;
   padding: 10px;
 }
+#pages {
+  height: 8%;
+  background: #cc6600;
+  text-align: center;
+}
+#pages a {
+  padding: 10px;
+}
+.current-page {
+  background: #dc42f4;
+}
+

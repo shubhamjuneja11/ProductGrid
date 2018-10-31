@@ -1,10 +1,12 @@
 function ProductGrid(options) {
   this.$productsContainer = options.productsContainer;
-  this.filtersContainer = options.filtersContainer;
+  this.$filtersContainer = options.filtersContainer;
+  this.$pagesContainer = options.pagesContainer;
   this.requestUrl = options.requestUrl;
   this.filterOptions = options.filterOptions;
   this.filters = Object.keys(options.filterOptions);
   this.productAttributes = options.productAttributes;
+  this.paginationAttributes = options.paginationAttributes;
   this.filterData = {};
   this.selectedFilters = {};
   var _this = this;
@@ -23,7 +25,7 @@ ProductGrid.prototype.init = function(response) {
 /**************Event Binding***************************/
 ProductGrid.prototype.bindEventListeners = function() {
   var _this = this;
-  this.filtersContainer.on('click', 'input', function() {
+  this.$filtersContainer.on('click', 'input', function() {
     var $this = $(this);
     _this.updateSelectedFilters($this.attr('filter-name'), $this.attr('value'), $this.attr('filter-type'), $this[0].checked);
   });
@@ -43,7 +45,8 @@ ProductGrid.prototype.refreshProducts = function() {
   this.filteredData = this.productData.filter(function(product) {
     return _this.shouldIncludeProduct(product);
   });
-  this.setProductsData();
+  this.createPageNavigators();
+//  this.setProductsData(this.filteredData);
 };
 
 ProductGrid.prototype.shouldIncludeProduct = function(product) {
@@ -62,9 +65,10 @@ ProductGrid.prototype.shouldIncludeProduct = function(product) {
 /**************Data fetching from server**********************/
 
 ProductGrid.prototype.setData = function() {
-  this.setProductsData();
+  this.setProductsData(this.filteredData);
   this.setFiltersData();
   this.createFilterViews();
+  this.addPagination();
 };
 
 /****************** Set Data*****************************/
@@ -93,7 +97,7 @@ ProductGrid.prototype.createFilterViews = function() {
     }
     filterFragment.append(filterView);
   });
-  this.filtersContainer.append(filterFragment);
+  this.$filtersContainer.append(filterFragment);
 };
 
 ProductGrid.prototype.createfilterView = function(filterName, filterOptions) {
@@ -143,10 +147,11 @@ ProductGrid.prototype.createFilterOptionsView = function(filterName, filterOptio
   return parentContainer.get(0);
 };
 
-ProductGrid.prototype.setProductsData = function() {
+ProductGrid.prototype.setProductsData = function(productsData) {
+  console.log(productsData);
   var _this = this,
     fragment = document.createDocumentFragment();
-  $.each(this.filteredData, function(index, value) {
+  $.each(productsData, function(index, value) {
     fragment.append(_this.loadProductToView(value));
   });
   this.$productsContainer.html(fragment);
@@ -166,12 +171,67 @@ ProductGrid.prototype.loadProductToView = function(product) {
     }))
     .get(0);
 };
+/*********************Pagination*************************/
+ProductGrid.prototype.addPagination = function() {
+  this.createPagesDropDown();
+  this.bindPagesEventListener();
+    this.maxProductsPerPage = this.paginationAttributes.pagesValues[0];
+
+  this.createPageNavigators();
+};
+
+ProductGrid.prototype.createPagesDropDown = function() {
+  var optionsList = this.paginationAttributes.pagesValues,
+  _this = this;
+  this.paginationDropDownList = $('<select>');
+  $.each(optionsList, function(index, pageValue) {
+    _this.paginationDropDownList.append($('<option>',{value: pageValue, text: pageValue}));
+  });
+  this.$filtersContainer.append(this.paginationDropDownList);
+};
+
+ProductGrid.prototype.bindPagesEventListener = function() {
+  var _this = this;
+  this.paginationDropDownList.on('change', function() {
+    _this.maxProductsPerPage = $(this).val();
+    _this.createPageNavigators();
+  });
+   this.$pagesContainer.on('click','a', function() {
+    _this.currentPage = $(this).attr('value');
+    _this.filterPageData();
+    _this.highlightSelectedPage(_this.currentPage);
+   });
+};
+
+ProductGrid.prototype.createPageNavigators = function() {
+  this.currentPage = 1;
+  this.pagesCount = Math.ceil(Object.keys(this.filteredData).length / this.maxProductsPerPage),
+  pagesNavigator = $('<div>');
+  for(var pageCount=1;pageCount<=this.pagesCount;pageCount++) {
+    pagesNavigator.append($('<a>',{'data-property':'page-switcher','page-count': pageCount,text:pageCount,value: pageCount,href:'#'}));
+  }
+  this.$pagesContainer.html(pagesNavigator);
+  this.filterPageData();
+  this.highlightSelectedPage(1);
+};
+
+ProductGrid.prototype.filterPageData = function() {
+  var firstProductIndex = (this.currentPage-1)*this.maxProductsPerPage,
+    lastProductindex = firstProductIndex + this.maxProductsPerPage;
+  this.setProductsData(this.filteredData.slice(firstProductIndex, lastProductindex));
+};
+
+ProductGrid.prototype.highlightSelectedPage = function(pageNumber) {
+  this.$pagesContainer.find('.current-page').removeClass('current-page');
+  this.$pagesContainer.find('[page-count="'+pageNumber+'"]').addClass('current-page');
+};
 
 $(function() {
   var options = {
     requestUrl: 'product.json',
-    productsContainer: $('[data-property=products'),
+    productsContainer: $('[data-property=products]'),
     filtersContainer: $('[data-property=filters]'),
+    pagesContainer: $('[data-property=pages]'),
     filterOptions: {
       'color': {
         viewTitle: 'Colors'
@@ -188,6 +248,9 @@ $(function() {
     },
     productAttributes: {
       class: 'product-item'
+    },
+    paginationAttributes: {
+      pagesValues: [3,6,9]
     }
   }
   var productGrid = new ProductGrid(options);
