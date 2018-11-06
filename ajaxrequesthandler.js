@@ -4,7 +4,7 @@ function AjaxRequestHandler(requestUrl) {
 
 AjaxRequestHandler.prototype.fetchData = function(callback) {
   var _this = this;
-   $.ajax({
+  $.ajax({
       url: this.requestUrl,
       dataType: "json"
     })

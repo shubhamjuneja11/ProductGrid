@@ -6,9 +6,8 @@ function Product(attributes) {
   this.soldOut = attributes['sold_out'];
 }
 
-
 Product.getJsonMappedAttribute = function(jsonKey) {
-return jsonKey.split('_').map(function(word, index) {
+  return jsonKey.split('_').map(function(word, index) {
     if (index == 0) {
       return word.toLowerCase();
     }

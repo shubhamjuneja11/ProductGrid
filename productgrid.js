@@ -8,7 +8,6 @@ function ProductGrid(options) {
   this.filterManager = new FilterManager(options.filterOptions);
   this.sortingOptions = options.gridViewOptions.sortingOptions;
   this.urlHandler = new UrlHandler();
-  this.attributesMap = new AttributesMap(options.jsonKeys);
   this.currentStatus = this.urlHandler.getDataFromUrl();
 }
 
@@ -20,6 +19,7 @@ ProductGrid.prototype.refreshViewCallback = function() {
       _this.updateFiltersCurrentStatus(filtersData);
     }
     _this.updateCurrentPageNumberStatus(1);
+    _this.updateUrl();
     var sortedProductsData = _this.sortProducts(productsData, _this.currentStatus['sort']);
     _this.gridView.refreshView(sortedProductsData);
   }
@@ -61,6 +61,7 @@ ProductGrid.prototype.createProducts = function() {
 ProductGrid.prototype.pageChangeCallback = function(pageNumber) {
   this.updateCurrentPageNumberStatus(pageNumber);
   this.gridView.pageChange(pageNumber);
+  this.updateUrl();
 };
 
 /*********************Pagination*************************/
@@ -90,9 +91,10 @@ ProductGrid.prototype.createPagesDropDown = function() {
 ProductGrid.prototype.bindPagesEventListener = function() {
   var _this = this;
   this.paginationDropDownList.on('change', function() {
-    _this.gridView.changeMaxProducts(this.value);
+    _this.gridView.changeMaxProducts(parseInt(this.value));
     _this.updateCurrentPageNumberStatus(1);
     _this.updateViewManipulatorsCurrentState('productsPerPage', this.value);
+    _this.updateUrl();
   });
 
 };
@@ -133,6 +135,7 @@ ProductGrid.prototype.bindSortEventListener = function() {
     var sortProperty = this.value,
       sortedProductsData = _this.sortProducts(_this.filteredData, sortProperty);
     _this.updateViewManipulatorsCurrentState('sort', sortProperty);
+    _this.updateUrl();
     _this.gridView.refreshView(sortedProductsData);
   });
 };
@@ -148,12 +151,10 @@ ProductGrid.prototype.sortProducts = function(productsData, sortProperty) {
 /*********************************Status*********************/
 ProductGrid.prototype.updateCurrentPageNumberStatus = function(pageNumber) {
   this.currentStatus['page'] = pageNumber;
-  this.urlHandler.update(this.currentStatus);
 };
 
 ProductGrid.prototype.updateFiltersCurrentStatus = function(filtersData) {
   this.currentStatus['filterData'] = filtersData;
-  this.urlHandler.update(this.currentStatus);
 };
 
 ProductGrid.prototype.updateViewManipulatorsCurrentState = function(manipulatorName, manipulatorValue) {
@@ -161,13 +162,15 @@ ProductGrid.prototype.updateViewManipulatorsCurrentState = function(manipulatorN
   if (manipulatorName === 'sort') {
     this.updateCurrentPageNumberStatus(1);
   }
+};
+
+ProductGrid.prototype.updateUrl = function() {
   this.urlHandler.update(this.currentStatus);
 };
 
 /*****************************Main**************************************/
 $(function() {
   var options = {
-    jsonKeys: ['name','url','color','brand','sold_out'],
     pagesContainer: $('[data-property=pages]'),
     filterOptions: {
       $filtersContainer: $('[data-property=filters]'),

@@ -49,7 +49,7 @@ FilterManager.prototype.createFilterObjects = function() {
         name: filterName,
         currentState: optionCurrentState
       }
-    _this.filters.push(new Filter(newFilterOptions));
+    _this.filters.push(new Filter(newFilterOptions, _this.filtersData[filterName]));
   });
 };
 
@@ -64,9 +64,8 @@ FilterManager.prototype.getFilteredData = function() {
 
 FilterManager.prototype.filterCallback = function() {
   var _this = this;
-  return function(options) {
+  return function() {
     var filteredData = _this.getFilteredData();
-    _this.updateCurrentStateData(options);
     _this.refreshData(filteredData, _this.filtersData);
   }
 };

@@ -1,11 +1,12 @@
 /********************** Select Filter ********************/
-function SelectFilter(filterData) {
-  this.options = filterData.options;
-  this.callback = filterData.callback;
-  this.name = filterData.name;
-  this.productAttribute = filterData.productAttribute;
-  this.viewTitle = filterData.attributes.viewTitle;
-  this.currentState = filterData.currentState;
+function SelectFilter(filterOptions, filterData) {
+  this.filterData = filterData;
+  this.options = filterOptions.options;
+  this.callback = filterOptions.callback;
+  this.name = filterOptions.name;
+  this.productAttribute = filterOptions.productAttribute;
+  this.viewTitle = filterOptions.attributes.viewTitle;
+  this.currentState = filterOptions.currentState;
 }
 
 SelectFilter.prototype.getView = function() {
@@ -40,13 +41,9 @@ SelectFilter.prototype.getSelectedOptions = function() {
 SelectFilter.prototype.bindEventListener = function() {
   var _this = this;
   this.filterView.on('click', 'input', function() {
-    var __this = this,
-      data = {
-        name: _this.name,
-        value: __this.value,
-        checked: __this.checked
-      }
-    _this.callback(data);
+    var __this = this;
+    _this.filterData[this.value] = this.checked;
+    _this.callback();
   });
 }
 
@@ -78,14 +75,15 @@ SelectFilter.prototype.createFilterOptionsView = function(filterName, filterOpti
 };
 
 /***************** Boolean Filter ********************************/
-function BooleanFilter(filterData) {
-  this.options = filterData.options;
-  this.callback = filterData.callback;
-  this.name = filterData.name
-  this.productAttribute = filterData.productAttribute;
-  this.viewTitle = filterData.attributes.viewTitle;
-  this.trueValue = filterData.attributes.trueValue;
-  this.currentState = filterData.currentState;
+function BooleanFilter(filterOptions, filterData) {
+  this.filterData = filterData;
+  this.options = filterOptions.options;
+  this.callback = filterOptions.callback;
+  this.name = filterOptions.name
+  this.productAttribute = filterOptions.productAttribute;
+  this.viewTitle = filterOptions.attributes.viewTitle;
+  this.trueValue = filterOptions.attributes.trueValue;
+  this.currentState = filterOptions.currentState;
 }
 
 BooleanFilter.prototype.getView = function() {
@@ -113,27 +111,18 @@ BooleanFilter.prototype.getView = function() {
 BooleanFilter.prototype.bindEventListener = function() {
   var _this = this;
   this.filterView.on('click', 'input', function() {
-    var __this = this,
-      data = {
-        name: _this.name,
-        value: __this.value,
-        checked: __this.checked
-      }
-    _this.callback(data);
+    _this.filterData[this.value] = this.checked;
+    _this.callback();
   });
 }
 
 BooleanFilter.prototype.applyFilter = function(productsData) {
   var _this = this;
-  if (this.filterChecked()) {
+  if (this.filterData[this.trueValue]) {
     return productsData.filter(function(product) {
       return product[_this.productAttribute] == _this.trueValue;
     });
   } else {
     return productsData;
   }
-};
-
-BooleanFilter.prototype.filterChecked = function() {
-  return this.filterView.find('input').get(0).checked;
 };

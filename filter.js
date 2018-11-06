@@ -1,12 +1,15 @@
-function Filter(filterData) {
-  this.filterData = filterData
+function Filter(filterOptions, filterData) {
+  this.filterOptions = filterOptions;
+  this.filterData = filterData;
 }
 
 Filter.prototype.getView = function() {
-  switch(this.filterData.attributes.type) {
-    case 'select': this.filterObject = new SelectFilter(this.filterData);
+  switch (this.filterOptions.attributes.type) {
+    case 'select':
+      this.filterObject = new SelectFilter(this.filterOptions, this.filterData);
       break;
-    case 'boolean': this.filterObject = new BooleanFilter(this.filterData);
+    case 'boolean':
+      this.filterObject = new BooleanFilter(this.filterOptions, this.filterData);
       break;
   }
   return this.filterObject.getView();
@@ -15,11 +18,3 @@ Filter.prototype.getView = function() {
 Filter.prototype.applyFilter = function(productsData) {
   return this.filterObject.applyFilter(productsData);
 };
-
-// Filter.prototype.getCurrentStatus = function() {
-//   return this.filterObject.getCurrentStatus();
-// };
-
-// Filter.prototype.getName = function() {
-//   return this.filterObject.getName();
-// };
