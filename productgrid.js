@@ -9,7 +9,7 @@ function ProductGrid(options) {
     class: options.productItemClass,
     productsContainer: options.productsContainer,
     navigatorContainer: options.navigatorContainer,
-  }
+  };
 
   this.gridView = new GridView(gridViewAttributes);
   this.filterManager = new FilterManager(options.filterAttributes);
@@ -143,7 +143,6 @@ ProductGrid.prototype.bindSortEventListener = function() {
 };
 
 ProductGrid.prototype.sortProducts = function(productsData, sortProperty) {
-  console.log(productsData.length);
   return productsData.slice(0).sort(function(product1, product2) {
     var prop1 = product1[sortProperty],
       prop2 = product2[sortProperty];

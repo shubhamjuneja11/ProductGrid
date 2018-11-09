@@ -22,7 +22,6 @@ GridView.prototype.setProductsData = function(productsData) {
   $.each(productsData, function(index, product) {
     container.append(_this.loadProductToView(product));
   });
-  console.log(productsData.length);
   this.$productsContainer.html(container.html());
 };
 

@@ -8,7 +8,6 @@ function FilterManager(options) {
   var _this = this;
   $.each(this.filtersNames, function(index, filter) {
     _this.filtersData[filter] = {};
-    _this.fetchedfilteredData[filter] = {};
   });
 }
 
@@ -16,7 +15,7 @@ FilterManager.prototype.init = function(options) {
   this.productsData = options.productsData;
   this.refreshCallback = options.refreshCallback;
   if (options.currentStateOptions) {
-    this.filtersData = options.currentStateOptions;
+    this.currentStateFiltersData = options.currentStateOptions;
   }
   this.createFilters();
   return this.getFilteredData();
@@ -36,27 +35,15 @@ FilterManager.prototype.setFiltersData = function() {
       if (!_this.filtersData[filterName][productAttributeValue]){
         _this.filtersData[filterName][productAttributeValue] = false;
       }
-      _this.fetchedfilteredData[filterName][productAttributeValue] = true;
     });
   });
- this.validateCurrentStateData();
-};
-
-FilterManager.prototype.validateCurrentStateData = function() {
-  var _this = this;
-  $.each(this.filtersData, function(filterName, filterOptions) {
-    if(_this.fetchedfilteredData[filterName]) {
+  $.each(_this.currentStateFiltersData, function(filterName, filterOptions){
     $.each(filterOptions, function(optionName, value) {
-      if(!_this.fetchedfilteredData[filterName][optionName]) {console.log(optionName);
-        delete _this.filtersData[filterName][optionName ];
+      if(_this.filtersData[filterName][optionName] == false){
+      _this.filtersData[filterName][optionName] = _this.currentStateFiltersData[filterName][optionName];
       }
     });
-  }
-  else {
-    delete _this.filtersData[filterName];
-  }
   });
-  console.log(_this.filtersData);
 };
 
 FilterManager.prototype.createFilterObjects = function() {
