@@ -1,5 +1,5 @@
 /********************** Select Filter ********************/
-function SelectFilter(filterOptions, filterData) {
+function CheckBoxFilter(filterOptions, filterData) {
   this.filterData = filterData;
   this.options = filterOptions.options;
   this.callback = filterOptions.callback;
@@ -9,15 +9,15 @@ function SelectFilter(filterOptions, filterData) {
   this.currentState = filterOptions.currentState;
 }
 
-SelectFilter.prototype.getView = function() {
+CheckBoxFilter.prototype.getView = function() {
   var filterViewTitle = this.createFilterTitle(this.name),
     filterOptionsView = this.createFilterOptionsView(this.name, this.options);
   this.filterView = $('<div>');
   this.bindEventListener();
-  return this.filterView.append(filterViewTitle, filterOptionsView, '<br><br>').get(0);
+  return this.filterView.append(filterViewTitle, filterOptionsView, '<br><br>');
 };
 
-SelectFilter.prototype.applyFilter = function(productsData) {
+CheckBoxFilter.prototype.applyFilter = function(productsData) {
   var selectedOptions = this.getSelectedOptions(),
     _this = this;
   if (Object.keys(selectedOptions).length > 0) {
@@ -29,16 +29,17 @@ SelectFilter.prototype.applyFilter = function(productsData) {
   }
 };
 
-SelectFilter.prototype.getSelectedOptions = function() {
+CheckBoxFilter.prototype.getSelectedOptions = function() {
   var selectedOptions = {};
   $.each(this.filterView.find('input'), function(index, option) {
-    if (option.checked)
+    if (option.checked){
       selectedOptions[option.value] = true;
+    }
   });
   return selectedOptions;
 };
 
-SelectFilter.prototype.bindEventListener = function() {
+CheckBoxFilter.prototype.bindEventListener = function() {
   var _this = this;
   this.filterView.on('click', 'input', function() {
     var __this = this;
@@ -47,11 +48,11 @@ SelectFilter.prototype.bindEventListener = function() {
   });
 }
 
-SelectFilter.prototype.createFilterTitle = function(filterName) {
+CheckBoxFilter.prototype.createFilterTitle = function(filterName) {
   return $('<h2>').html(this.viewTitle);
 };
 
-SelectFilter.prototype.createFilterOptionsView = function(filterName, filterOptions) {
+CheckBoxFilter.prototype.createFilterOptionsView = function(filterName, filterOptions) {
   var parentContainer = $('<div>'),
     _this = this;
   $.each(filterOptions, function(option, _) {

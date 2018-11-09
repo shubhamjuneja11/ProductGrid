@@ -1,14 +1,15 @@
 function GridView(options) {
   this.productOptions = options;
-  this.$viewContainer = options.$viewContainer
-  this.$productsContainer = this.$viewContainer.find('[data-property="products"]');
+  this.$productsContainer = options.productsContainer;
+  this.$navigatorContainer = options.navigatorContainer;
 }
 
 GridView.prototype.init = function(options) {
   this.productsData = options.products;
   this.pageChangeCallback = options.pageChangeCallback;
   this.currentStateOptions = options.currentStateOptions;
-  if (options.pagination) {
+  this.paginationExist = options.pagination;
+  if (this.paginationExist) {
     this.addPagination(options.currentStateOptions['page'], options.currentStateOptions['maxProductsPerPage']);
   } else {
     this.setProductsData(this.productsData);
@@ -21,6 +22,7 @@ GridView.prototype.setProductsData = function(productsData) {
   $.each(productsData, function(index, product) {
     container.append(_this.loadProductToView(product));
   });
+  console.log(productsData.length);
   this.$productsContainer.html(container.html());
 };
 
@@ -39,12 +41,16 @@ GridView.prototype.loadProductToView = function(product) {
 /******************** Pagination ************************************/
 GridView.prototype.changeMaxProducts = function(maxProductsPerPage) {
   this.maxProductsPerPage = maxProductsPerPage;
-  this.refreshNavigators(1);
+  this.refreshNavigators();
 };
 
 GridView.prototype.refreshView = function(productsData) {
   this.productsData = productsData;
-  this.refreshNavigators(1);
+  if(this.paginationExist){
+    this.refreshNavigators();
+  } else {
+    this.setProductsData(productsData);
+  }
 };
 
 GridView.prototype.refreshNavigators = function(pageNumber) {
@@ -58,17 +64,12 @@ GridView.prototype.addPagination = function(page, maxProductsPerPage) {
   } else {
     this.maxProductsPerPage = this.productOptions.paginationAttributes.defaultValue;
   }
-  this.$navigatorContainer = this.$viewContainer.find('[data-property="pages"]');
   this.bindPagesEventListener();
   this.refreshNavigators(page);
 };
 
-GridView.prototype.setCurrentPage = function(pageNumber) {
-  if (pageNumber) {
-    this.currentPage = pageNumber;
-  } else {
-    this.currentPage = 1;
-  }
+GridView.prototype.setCurrentPage = function(pageNumber = 1) {
+  this.currentPage = pageNumber;
 };
 
 GridView.prototype.pageChange = function(pageNumber) {
@@ -80,8 +81,8 @@ GridView.prototype.pageChange = function(pageNumber) {
 GridView.prototype.bindPagesEventListener = function() {
   var _this = this;
   this.$navigatorContainer.on('click', 'a', function(event) {
-    _this.pageChangeCallback($(this).attr('value'));
     event.preventDefault();
+    _this.pageChangeCallback($(this).attr('value'));
   });
 };
 

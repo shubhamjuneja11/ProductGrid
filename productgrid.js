@@ -1,14 +1,23 @@
 function ProductGrid(options) {
-  this.$filtersContainer = options.filterOptions.$filtersContainer;
+  this.$filtersContainer = options.filterAttributes.$filtersContainer;
   this.$pagesContainer = options.pagesContainer;
-  this.filters = Object.keys(options.filterOptions);
-  this.paginationAttributes = options.gridViewOptions.paginationAttributes;
-  this.products = [];
-  this.gridView = new GridView(options.gridViewOptions);
-  this.filterManager = new FilterManager(options.filterOptions);
-  this.sortingOptions = options.gridViewOptions.sortingOptions;
+  this.filters = Object.keys(options.filterAttributes);
+  this.paginationAttributes = options.paginationAttributes;
+
+  /***************gridViewAttributes*********************/
+  var gridViewAttributes   = {
+    class: options.productItemClass,
+    productsContainer: options.productsContainer,
+    navigatorContainer: options.navigatorContainer,
+  }
+
+  this.gridView = new GridView(gridViewAttributes);
+  this.filterManager = new FilterManager(options.filterAttributes);
+  this.sortingOptions = options.sortingOptions;
   this.urlHandler = new UrlHandler();
   this.currentStatus = this.urlHandler.getDataFromUrl();
+  this.products = [];
+
 }
 
 ProductGrid.prototype.refreshViewCallback = function() {
@@ -38,7 +47,7 @@ ProductGrid.prototype.init = function(response) {
   this.addSorting();
   this.addPagination();
   var sortedProductsData = _this.sortProducts(_this.filteredData, _this.currentStatus['sort']),
-    gridViewOptions = {
+    gridViewAttributes = {
       products: sortedProductsData,
       pagination: true,
       pageChangeCallback: _this.pageChangeCallback.bind(_this),
@@ -47,7 +56,7 @@ ProductGrid.prototype.init = function(response) {
         'maxProductsPerPage': parseInt(this.currentStatus['productsPerPage'])
       }
     };
-  this.gridView.init(gridViewOptions);
+  this.gridView.init(gridViewAttributes);
 
 };
 
@@ -99,13 +108,6 @@ ProductGrid.prototype.bindPagesEventListener = function() {
 
 };
 
-ProductGrid.prototype.getDropDownCurrentStatus = function(key, dropDown) {
-  return {
-    name: key,
-    selected: dropDown.val()
-  }
-};
-
 /****************************Sorting*************************************/
 ProductGrid.prototype.addSorting = function() {
   this.createSortDropDown();
@@ -133,7 +135,7 @@ ProductGrid.prototype.bindSortEventListener = function() {
   var _this = this;
   this.sortingDropDownList.on('change', function() {
     var sortProperty = this.value,
-      sortedProductsData = _this.sortProducts(_this.filteredData, sortProperty);
+      sortedProductsData = _this.sortProducts(_this.filteredProducts, sortProperty);
     _this.updateViewManipulatorsCurrentState('sort', sortProperty);
     _this.updateUrl();
     _this.gridView.refreshView(sortedProductsData);
@@ -141,6 +143,7 @@ ProductGrid.prototype.bindSortEventListener = function() {
 };
 
 ProductGrid.prototype.sortProducts = function(productsData, sortProperty) {
+  console.log(productsData.length);
   return productsData.slice(0).sort(function(product1, product2) {
     var prop1 = product1[sortProperty],
       prop2 = product2[sortProperty];
@@ -170,18 +173,19 @@ ProductGrid.prototype.updateUrl = function() {
 
 /*****************************Main**************************************/
 $(function() {
-  var options = {
+  var $gridViewContainer = $('[data-property=grid]'),
+    options = {
     pagesContainer: $('[data-property=pages]'),
-    filterOptions: {
+    filterAttributes: {
       $filtersContainer: $('[data-property=filters]'),
       filters: {
         'color': {
           viewTitle: 'Colors',
-          type: 'select'
+          type: 'checkbox'
         },
         'brand': {
           viewTitle: 'Brands',
-          type: 'select'
+          type: 'checkbox'
         },
         'sold_out': {
           viewTitle: 'Available',
@@ -192,20 +196,19 @@ $(function() {
         }
       },
     },
-    gridViewOptions: {
-      class: 'product-item',
-      $viewContainer: $('[data-property=grid]'),
-      paginationAttributes: {
+    productItemClass: 'product-item',
+    productsContainer: $gridViewContainer.find('[data-property=products]'),
+    navigatorContainer: $gridViewContainer.find('[data-property="pages"]'),
+    paginationAttributes: {
         pagesValues: [3, 6, 9],
         defaultValue: 3
       },
       sortingOptions: {
-        values: ['name', 'color', 'brand', 'sold_out']
+        values: ['name', 'color', 'brand', 'soldOut']
       }
     },
-  }
-  var productGrid = new ProductGrid(options);
-  var ajaxRequestHandler = new AjaxRequestHandler('product.json');
+   productGrid = new ProductGrid(options),
+   ajaxRequestHandler = new AjaxRequestHandler('product.json');
   ajaxRequestHandler.fetchData((function(response) {
     productGrid.init(response)
   }));

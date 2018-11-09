@@ -3,16 +3,18 @@ function FilterManager(options) {
   this.availableFilters = options.filters;
   this.filtersNames = Object.keys(options.filters);
   this.filters = [];
-  this.filtersData = {};
+  this.filtersData = {},
+  this.fetchedfilteredData = {};
   var _this = this;
   $.each(this.filtersNames, function(index, filter) {
     _this.filtersData[filter] = {};
+    _this.fetchedfilteredData[filter] = {};
   });
 }
 
 FilterManager.prototype.init = function(options) {
   this.productsData = options.productsData;
-  this.refreshData = options.refreshCallback;
+  this.refreshCallback = options.refreshCallback;
   if (options.currentStateOptions) {
     this.filtersData = options.currentStateOptions;
   }
@@ -31,10 +33,30 @@ FilterManager.prototype.setFiltersData = function() {
   $.each(this.productsData, function(index, product) {
     $.each(_this.filtersNames, function(index, filterName) {
       var productAttributeValue = product[AttributesMap.getJsonMappedAttribute(filterName)];
-      if (!_this.filtersData[filterName][productAttributeValue])
+      if (!_this.filtersData[filterName][productAttributeValue]){
         _this.filtersData[filterName][productAttributeValue] = false;
+      }
+      _this.fetchedfilteredData[filterName][productAttributeValue] = true;
     });
   });
+ this.validateCurrentStateData();
+};
+
+FilterManager.prototype.validateCurrentStateData = function() {
+  var _this = this;
+  $.each(this.filtersData, function(filterName, filterOptions) {
+    if(_this.fetchedfilteredData[filterName]) {
+    $.each(filterOptions, function(optionName, value) {
+      if(!_this.fetchedfilteredData[filterName][optionName]) {console.log(optionName);
+        delete _this.filtersData[filterName][optionName ];
+      }
+    });
+  }
+  else {
+    delete _this.filtersData[filterName];
+  }
+  });
+  console.log(_this.filtersData);
 };
 
 FilterManager.prototype.createFilterObjects = function() {
@@ -66,12 +88,12 @@ FilterManager.prototype.filterCallback = function() {
   var _this = this;
   return function() {
     var filteredData = _this.getFilteredData();
-    _this.refreshData(filteredData, _this.filtersData);
+    _this.refreshCallback(filteredData, _this.filtersData);
   }
 };
 
 FilterManager.prototype.createFilterViews = function() {
-  var filterFragment = document.createDocumentFragment();
+  var filterFragment = $('<div>');
   $.each(this.filters, function(index, filterObject) {
     filterFragment.append(filterObject.getView());
   });

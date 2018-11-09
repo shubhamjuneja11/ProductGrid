@@ -6,7 +6,6 @@ UrlHandler.prototype.update = function(data) {
 
 UrlHandler.prototype.createUrl = function(data) {
   var modifiedData = this.modifyData(data);
-  console.log(modifiedData);
   window.location.hash = encodeURIComponent(JSON.stringify(modifiedData));
 };
 
@@ -25,7 +24,6 @@ UrlHandler.prototype.modifyData = function(data) {
 
 UrlHandler.prototype.getDataFromUrl = function() {
   var hash = decodeURIComponent(window.location.hash.substring(1));
-  console.log(JSON.parse(hash));
   if (hash.length > 0) {
     return JSON.parse(hash);
   } else {
