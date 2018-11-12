@@ -1,5 +1,5 @@
 function AttributesMap() {
-this.mappedAttributes = [];
+this.mappedAttributes = {};
 }
 
 AttributesMap.prototype.getJsonMappedAttribute = function(jsonKey) {
