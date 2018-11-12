@@ -9,6 +9,7 @@ function ProductGrid(options) {
     class: options.productItemClass,
     productsContainer: options.productsContainer,
     navigatorContainer: options.navigatorContainer,
+    paginationAttributes: options.paginationAttributes
   };
 
   this.gridView = new GridView(gridViewAttributes);
