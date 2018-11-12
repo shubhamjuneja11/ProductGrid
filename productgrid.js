@@ -47,7 +47,7 @@ ProductGrid.prototype.init = function(response) {
   this.filteredData = this.filterManager.init(filterManagerOptions);
   this.addSorting();
   this.addPagination();
-  var sortedProductsData = _this.sortProducts(_this.filteredData, _this.currentStatus['sort']),
+  var sortedProductsData = _this.sortProducts(this.filteredData, this.currentStatus['sort']),
     gridViewAttributes = {
       products: sortedProductsData,
       pagination: true,
@@ -124,7 +124,7 @@ ProductGrid.prototype.createSortDropDown = function() {
       value: AttributesMap.getJsonMappedAttribute(sortValue),
       text: 'Sort by ' + AttributesMap.getJsonMappedAttribute(sortValue)
     });
-    if (_this.currentStatus['sort'] === sortValue) {
+    if (_this.currentStatus['sort'] === AttributesMap.getJsonMappedAttribute(sortValue)) {
       option.attr('selected', 'selected');
     }
     _this.sortingDropDownList.append(option);
@@ -136,7 +136,7 @@ ProductGrid.prototype.bindSortEventListener = function() {
   var _this = this;
   this.sortingDropDownList.on('change', function() {
     var sortProperty = this.value,
-      sortedProductsData = _this.sortProducts(_this.filteredProducts, sortProperty);
+      sortedProductsData = _this.sortProducts(_this.filteredData, sortProperty);
     _this.updateViewManipulatorsCurrentState('sort', sortProperty);
     _this.updateUrl();
     _this.gridView.refreshView(sortedProductsData);
@@ -204,7 +204,7 @@ $(function() {
         defaultValue: 3
       },
       sortingOptions: {
-        values: ['name', 'color', 'brand', 'soldOut']
+        values: ['name', 'color', 'brand', 'sold_out']
       }
     },
    productGrid = new ProductGrid(options),
