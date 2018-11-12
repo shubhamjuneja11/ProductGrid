@@ -5,12 +5,3 @@ function Product(attributes) {
   this.color = attributes['color'];
   this.soldOut = attributes['sold_out'];
 }
-
-Product.getJsonMappedAttribute = function(jsonKey) {
-  return jsonKey.split('_').map(function(word, index) {
-    if (index == 0) {
-      return word.toLowerCase();
-    }
-    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-  }).join('');
-}

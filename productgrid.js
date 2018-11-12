@@ -16,6 +16,7 @@ function ProductGrid(options) {
   this.filterManager = new FilterManager(options.filterAttributes);
   this.sortingOptions = options.sortingOptions;
   this.urlHandler = new UrlHandler();
+  this.attributesMap = new AttributesMap();
   this.currentStatus = this.urlHandler.getDataFromUrl();
   this.products = [];
 
@@ -121,10 +122,10 @@ ProductGrid.prototype.createSortDropDown = function() {
   this.sortingDropDownList = $('<select>');
   $.each(optionsList, function(index, sortValue) {
     var option = $('<option>', {
-      value: AttributesMap.getJsonMappedAttribute(sortValue),
-      text: 'Sort by ' + AttributesMap.getJsonMappedAttribute(sortValue)
+      value: _this.attributesMap.getMappedAttribute(sortValue),
+      text: 'Sort by ' + _this.attributesMap.getMappedAttribute(sortValue)
     });
-    if (_this.currentStatus['sort'] === AttributesMap.getJsonMappedAttribute(sortValue)) {
+    if (_this.currentStatus['sort'] === _this.attributesMap.getMappedAttribute(sortValue)) {
       option.attr('selected', 'selected');
     }
     _this.sortingDropDownList.append(option);

@@ -5,6 +5,7 @@ function FilterManager(options) {
   this.filters = [];
   this.filtersData = {},
   this.fetchedfilteredData = {};
+  this.attributesMap = new AttributesMap();
   var _this = this;
   $.each(this.filtersNames, function(index, filter) {
     _this.filtersData[filter] = {};
@@ -31,7 +32,7 @@ FilterManager.prototype.setFiltersData = function() {
   var _this = this;
   $.each(this.productsData, function(index, product) {
     $.each(_this.filtersNames, function(index, filterName) {
-      var productAttributeValue = product[AttributesMap.getJsonMappedAttribute(filterName)];
+      var productAttributeValue = product[_this.attributesMap.getJsonMappedAttribute(filterName)];
       if (!_this.filtersData[filterName][productAttributeValue]){
         _this.filtersData[filterName][productAttributeValue] = false;
       }
@@ -54,7 +55,7 @@ FilterManager.prototype.createFilterObjects = function() {
         attributes: _this.availableFilters[filterName],
         options: filterOptions,
         callback: _this.filterCallback(),
-        productAttribute: AttributesMap.getJsonMappedAttribute(filterName),
+        productAttribute: _this.attributesMap.getJsonMappedAttribute(filterName),
         name: filterName,
         currentState: optionCurrentState
       }

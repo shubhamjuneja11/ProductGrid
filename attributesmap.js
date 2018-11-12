@@ -1,7 +1,8 @@
 function AttributesMap() {
-
+this.mappedAttributes = [];
 }
-AttributesMap.getJsonMappedAttribute = function(jsonKey) {
+
+AttributesMap.prototype.getJsonMappedAttribute = function(jsonKey) {
   return jsonKey.split('_').map(function(word, index) {
     if (index == 0) {
       return word.toLowerCase();
@@ -10,9 +11,9 @@ AttributesMap.getJsonMappedAttribute = function(jsonKey) {
   }).join('');
 };
 
-AttributesMap.getMappedAttribute = function(key) {
+AttributesMap.prototype.getMappedAttribute = function(key) {
   if (this.mappedAttributes[key]) {
-    return mappedAttributes[key];
+    return this.mappedAttributes[key];
   } else {
     return this.mappedAttributes[key] = this.getJsonMappedAttribute(key);
   }
